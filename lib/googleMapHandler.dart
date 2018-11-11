@@ -1,8 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_app/main.dart';
 import 'package:map_view/location.dart';
 import 'package:map_view/polyline.dart';
+
+import 'package:http/http.dart' as http;
+import 'package:xml/xml.dart' as xml;
 
 
 //Flutter channel to native android code
@@ -21,6 +27,8 @@ class GoogleMapHandler{
   }
 
   //Methods to manipulate data
+
+
   List<Polyline> createPolyline(List<double> latitude, List<double> longitude){
     if(longitude.length != latitude.length){
       print("Longitude list length != Latitude list length");
@@ -45,16 +53,70 @@ class GoogleMapHandler{
     new Polyline(
         "11",
         <Location>[
-          new Location(45.52309483308097, -122.67339684069155),
+          new Location(45.52309483308097, -122.67339684069155), //Lat, Long
           new Location(45.52298442915803, -122.66339991241693),
         ],
         width: 15.0,
         color: Colors.blue),
   ];
 
+
+  //Returns List<double> = [min, max]
+  List<double> _minMax(List<double> numbers){
+    double min = numbers[0], max = numbers[0];
+    for(int i = 0; i < numbers.length; i++){
+      if(min > numbers[i]){
+        min = numbers[i];
+      }
+      if(max < numbers[i]){
+        max = numbers[i];
+      }
+    }
+    return [min,max];
+  }
+
+  //Scales the coordinates according to starting(first lat,long) and ending point(last lat,long)
+  //Latitude, Longitude
+  List<Polyline> _scale(List<double> latCoor, List<double> longCoor, List<double> startLocation, List<double> endLocation){
+    var latLast = latCoor.length;
+    var longLast = longCoor.length;
+    var latScale = (startLocation[0]-endLocation[0])/(latCoor[0] - latCoor[latLast]);
+    var longScale = (startLocation[1]-endLocation[1])/(longCoor[0] - longCoor[longLast]);
+    return _rescale(latCoor, longCoor, startLocation, endLocation, latScale, longScale);
+  }
+
+  //Rescales to latitude-longitude and returns location
+  List<Polyline> _rescale(List<double> latCoor, List<double> longCoor, List<double> startLocation, List<double> endLocation, double latScale, double longScale){
+    var latLast = latCoor.length;
+    var longLast = longCoor.length;
+    for(int i = 0; i < latCoor.length; i++){
+      latCoor[i] = startLocation[0] + latScale*(startLocation[0] - latCoor[i]);
+    }
+    for(int j = 0; j < latCoor.length; j++){
+      longCoor[j] = startLocation[1] + longScale*(startLocation[1] - longCoor[j]);
+    }
+    return createPolyline(latCoor, longCoor);
+  }
 }
 
+Future<String> fetchPost() async{
+  final response =
+  await http.get('https://maps.googleapis.com/maps/api/directions/json?origin=Disneyland&destination=Universal+Studios+Hollywood&key=AIzaSyBY5kUISXaSV_lkdA50ipdP1ndP_-jOgpY');
 
+  if (response.statusCode == 200) {
+    // If the call to the server was successful, parse the JSON
+    RegExp exp = new RegExp("walk&path", caseSensitive: false);
+    debugPrint(response.body);
+    print(exp.hasMatch(response.body));
+
+    return json.decode(response.body);
+  } else {
+    // If that call was not successful, throw an error.
+    throw Exception('Failed to load post');
+  }
+
+
+}
 
 
 //new Location(45.5231233, -122.6733130),

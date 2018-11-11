@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:map_view/map_view.dart';
 import 'package:map_view/polyline.dart';
+import 'package:html/parser.dart';
 
 import 'googleMapHandler.dart';
 
@@ -23,7 +24,12 @@ class _GoogleMapUIState extends State<GoogleMapUI> {
   CameraPosition cameraPosition;
   var compositeSubscription = new CompositeSubscription();
   var staticMapProvider = new StaticMapProvider(API_KEY);
+  final locationToController = TextEditingController();
+  final locationFromController = TextEditingController();
   Uri staticMapUri;
+  String locationFrom;
+  String locationTo;
+
 
   //Marker bubble
   List<Marker> _markers = <Marker>[
@@ -43,15 +49,18 @@ class _GoogleMapUIState extends State<GoogleMapUI> {
   ];
 
   //Testing Line
-  List<double> latitude = [45.5231233,45.5231195,45.5231120,45.5230894,45.5231233];
-  List<double> longitude = [-122.6733130,-122.6706147,-122.6677823,-122.6670957,-122.6733130];
-
+  List<double> latitude = [1.344058,1.343971,1.343829,1.343709,1.343415];
+  List<double> longitude = [103.680673,103.680767,103.680917,103.681055,103.680808];
+  /*1.344058,103.680673|1.343971,103.680767|1.343829,103.680917|1.343709,103.681055|1.343415,103.680808|
+  1.343132,103.680557|1.342791,103.680231|1.342389,103.679863|1.342338,103.679924|1.342074,103.679653|
+  1.342027,103.679555|1.342026,103.679450|1.341911,103.679438|1.341911,103.679354
+  */
   @override
   initState() {
     super.initState();
-    cameraPosition = new CameraPosition(Locations.portland, 2.0);
-    staticMapUri = staticMapProvider.getStaticUri(Locations.portland, 12,
-        width: 900, height: 400, mapType: StaticMapViewType.roadmap);
+    cameraPosition = new CameraPosition(Location(1.310270,103.820959), 11.0);
+    staticMapUri = staticMapProvider.getStaticUri(Location(1.310270,103.820959), 11,
+        width: 900, height: 600, mapType: StaticMapViewType.roadmap);
   }
 
   @override
@@ -62,11 +71,46 @@ class _GoogleMapUIState extends State<GoogleMapUI> {
           appBar: new AppBar(
             title: new Text('Map View Example'),
           ),
-          body: new Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+          body: new ListView(
             children: <Widget>[
               new Container(
-                height: 250.0,
+                padding: new EdgeInsets.only(top: 5.0),
+                child: new TextField(
+                  controller: locationFromController,
+                  decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: ' From'
+                  ),
+                ),
+              ),
+              new Container(
+                padding: new EdgeInsets.only(top: 5.0),
+                child: new TextField(
+                  controller: locationToController,
+                  decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: ' To'
+                  ),
+                ),
+              ),
+              new Container(
+                padding: new EdgeInsets.only(top:5.0),
+                child: new RaisedButton(
+                  onPressed:() {
+                    locationFrom = locationFromController.text;
+                    locationTo = locationToController.text;
+                    fetchPost();
+                  },
+                  textColor: Colors.white,
+                  color: Colors.red,
+                  padding: const EdgeInsets.all(8.0),
+                  child: new Text(
+                    "Find Path!",
+                  ),
+                ),
+              ),
+              new Container(
+                height: 360.0,
                 child: new Stack(
                   children: <Widget>[
                     new Center(
@@ -80,7 +124,7 @@ class _GoogleMapUIState extends State<GoogleMapUI> {
                                 "in the Google API Console. See README for more detail.",
                             textAlign: TextAlign.center,
                           ),
-                          padding: const EdgeInsets.all(20.0),
+                          padding: const EdgeInsets.all(10.0),
                         )),
                     new InkWell(
                       child: new Center(
@@ -91,22 +135,9 @@ class _GoogleMapUIState extends State<GoogleMapUI> {
                   ],
                 ),
               ),
-              new Container(
-                padding: new EdgeInsets.only(top: 10.0),
-                child: new Text(
-                  "Tap the map to interact",
-                  style: new TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-              new Container(
-                padding: new EdgeInsets.only(top: 25.0),
-                child:
-                new Text("Camera Position: \n\nLat: ${cameraPosition.center
-                    .latitude}\n\nLng:${cameraPosition.center
-                    .longitude}\n\nZoom: ${cameraPosition.zoom}"),
-              ),
             ],
-          )),
+          )
+      ),
     );
   }
 
@@ -120,7 +151,7 @@ class _GoogleMapUIState extends State<GoogleMapUI> {
             showMyLocationButton: true,
             showCompassButton: true,
             initialCameraPosition: new CameraPosition(
-                new Location(45.526607443935724, -122.66731660813093), 15.0),
+                new Location(1.310270,103.820959), 10.5),
             hideToolbar: false,
             title: "Recently Visited"),
         toolbarActions: [new ToolbarAction("Close", 1)]);

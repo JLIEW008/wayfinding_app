@@ -28,6 +28,7 @@ dev_dependencies:
 
   map_view:
     git: https://github.com/diegoveloper/flutter_google_map_view.git
+  google_maps_webservice: ^0.0.6
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec

@@ -8,7 +8,6 @@ import 'package:flutter/services.dart' show rootBundle;
 
 import 'googleMapHandler.dart';
 import 'googleMapUI.dart';
-import 'package:xml/xml.dart' as xml;
 
 Future<String> getFileData(String path) async {
   return await rootBundle.loadString(path);
@@ -17,14 +16,14 @@ Future<String> getFileData(String path) async {
 Future<String> fetchPost() async{
   final response =
   await http.get('http://maps.ntu.edu.sg/m?q=Asian%20School%20of%20the%20Environment%20(ASE)%20Admin%20Office%20to%20Bus%20stop%20opp%20Wee%20Kim%20Wee%20School%20of%20Communications%20%26%20Information%20(S1)%20(63707)&d=w&p=0&s=3&fs=m ');
-
-  String data = await getFileData("assets/sportsg-sport-facilities-kml.kml");
-  print(data);
-  var sportsSG = xml.parse(data);
-  var data1 = sportsSG.findAllElements('coordinates');
-  for(xml.XmlElement e in data1){
-    print(e);
-  }
+//
+//  String data = await getFileData("assets/sportsg-sport-facilities-kml.kml");
+//  print(data);
+//  var sportsSG = xml.parse(data);
+//  var data1 = sportsSG.findAllElements('coordinates');
+//  for(xml.XmlElement e in data1){
+//    print(e);
+//  }
 
   if (response.statusCode == 200) {
     // If the call to the server was successful, parse the JSON

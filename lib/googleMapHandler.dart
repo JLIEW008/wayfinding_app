@@ -3,12 +3,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_app/main.dart';
 import 'package:map_view/location.dart';
 import 'package:map_view/polyline.dart';
 
 import 'package:http/http.dart' as http;
-import 'package:xml/xml.dart' as xml;
 
 
 //Flutter channel to native android code
@@ -101,7 +99,7 @@ class GoogleMapHandler{
 
 Future<String> fetchPost() async{
   final response =
-  await http.get('https://maps.googleapis.com/maps/api/directions/json?origin=Disneyland&destination=Universal+Studios+Hollywood&key=AIzaSyBY5kUISXaSV_lkdA50ipdP1ndP_-jOgpY');
+    await http.get('https://maps.googleapis.com/maps/api/directions/json?origin=Disneyland&destination=Universal+Studios+Hollywood&key=AIzaSyBY5kUISXaSV_lkdA50ipdP1ndP_-jOgpY');
 
   if (response.statusCode == 200) {
     // If the call to the server was successful, parse the JSON
